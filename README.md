@@ -1,6 +1,8 @@
 # gh-repo-fzf
 
 A `gh` cli to fuzzy search your repositories and do an action with them
+![gh-repo-fzf](https://user-images.githubusercontent.com/41034356/144628703-caaf0921-8d1a-4913-b5a0-24b5f7269549.gif)
+
 
 ## Installation
 
