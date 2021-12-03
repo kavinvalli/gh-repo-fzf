@@ -39,6 +39,12 @@ gh extension install kavinvalli/gh-repo-fzf
    ```bash
    gh extension install .
    ```
+   
+## Available actions
+- Clone
+- View
+- Fork
+- Archive
 
 ## Usage
 
