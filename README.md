@@ -43,7 +43,7 @@ gh extension install kavinvalli/gh-repo-fzf
 
 ## Usage
 
-- To list all directories, you have access to run:
+- To list all directories you have access to, run:
 
 ```sh
 gh repo-fzf
