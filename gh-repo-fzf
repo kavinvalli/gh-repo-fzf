@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -e
+
+user=$(gh api user -q .login)
+
+QUERY='
+  query($owner: String!, $endCursor: String) {
+    repositoryOwner(login: $owner) {
+      repositories(first: 100, after: $endCursor) {
+        nodes { nameWithOwner }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  }
+'
+
+repos=$(gh api graphql --paginate -F owner="${1:-$user}" -f query="${QUERY}" --jq '.data.repositoryOwner.repositories.nodes.[].nameWithOwner')
+
+repo=$(echo $"$repos" | fzf)
+if [ -z $repo ]; then
+  echo "Please choose a repository"
+  exit 1
+fi
+
+option=$(echo "clone view fork archive" | tr " " "\n" | fzf)
+if [ -z $option ]; then
+  echo "Please choose an option"
+  exit 1
+fi
+
+if [ $option = "clone" ]; then
+  gh repo clone $repo
+elif [ $option = "view" ]; then
+  gh repo view $repo --web
+elif [ $option = "fork" ]; then
+  gh repo fork $repo
+elif [ $option = "archive" ]; then
+  gh repo archive $repo
+fi
