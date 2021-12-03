@@ -3,14 +3,13 @@
 A `gh` cli to fuzzy search your repositories and do an action with them
 ![gh-repo-fzf](https://user-images.githubusercontent.com/41034356/144628703-caaf0921-8d1a-4913-b5a0-24b5f7269549.gif)
 
+## Requirements
+
+1. `gh cli` - minimum version (2.0.0)
+
+2. `fzf`
 
 ## Installation
-
-Installation requires a minimum version (2.0.0) of the the Github CLI to support extensions.
-
-1. Install the `gh cli` - see the [installation/upgrade instructions](https://github.com/cli/cli#installation)
-
-2. Install this extension:
 
 ```sh
 gh extension install kavinvalli/gh-repo-fzf
