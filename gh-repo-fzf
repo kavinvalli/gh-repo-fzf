@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
+spin[0]="-"
+spin[1]="\\"
+spin[2]="|"
+spin[3]="/"
+
 user=$(gh api user -q .login)
 
 QUERY='
@@ -17,9 +22,20 @@ QUERY='
   }
 '
 
-repos=$(gh api graphql --paginate -F owner="${1:-$user}" -f query="${QUERY}" --jq '.data.repositoryOwner.repositories.nodes.[].nameWithOwner')
+gh api graphql --paginate -F owner="${1:-$user}" -f query="${QUERY}" --jq '.data.repositoryOwner.repositories.nodes.[].nameWithOwner' > .repos.txt & PID=$!
 
-repo=$(echo $"$repos" | fzf)
+echo "This may take a while. Please be patient while it runs"
+printf "["
+while kill -0 $PID 2>/dev/null; do
+  # for i in "${spin[@]}"; do
+  # echo -ne "\b$i"
+  printf "▓"
+  sleep 0.5
+  # done
+done
+printf "] done!\n"
+
+repo=$(cat .repos.txt | fzf)
 if [ -z $repo ]; then
   echo "Please choose a repository"
   exit 1
