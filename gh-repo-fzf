@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-spin[0]="-"
-spin[1]="\\"
-spin[2]="|"
-spin[3]="/"
-
+###############################################################################
+# Config
+###############################################################################
+owner=${1:-$user}
+force=$2
+cachefile=".repos_${owner}.txt"
+cachettl="+30"
 user=$(gh api user -q .login)
 
 QUERY='
@@ -22,37 +24,57 @@ QUERY='
   }
 '
 
-gh api graphql --paginate -F owner="${1:-$user}" -f query="${QUERY}" --jq '.data.repositoryOwner.repositories.nodes.[].nameWithOwner' > .repos.txt & PID=$!
+###############################################################################
+# PreFlightCheck
+###############################################################################
+if ! command -v fzf &> /dev/null; then
+  echo "fzf command missing."
+  exit 1;
+fi
 
-echo "This may take a while. Please be patient while it runs"
-printf "["
-while kill -0 $PID 2>/dev/null; do
-  # for i in "${spin[@]}"; do
-  # echo -ne "\b$i"
-  printf "▓"
-  sleep 0.5
-  # done
-done
-printf "] done!\n"
+###############################################################################
+# Main
+###############################################################################
+# if $force is set the file will be marked as to old
+if [[ -v "$force" ]]; then
+  touch -t 199001010000 "$cachefile"
+fi
 
-repo=$(cat .repos.txt | fzf)
-if [ -z $repo ]; then
+# if $cachefile not exist, created it and set the time date to 01.01.1990
+if [[ ! -f $cachefile ]]; then
+  touch -t 199001010000 "$cachefile"
+fi
+
+if test "$(find "$cachefile" -mmin "$cachettl")"; then
+  gh api graphql --paginate -F owner="$owner" -f query="${QUERY}" --jq '.data.repositoryOwner.repositories.nodes.[].nameWithOwner' > "$cachefile" & PID=$!
+  echo "This may take a while. Please be patient while it runs"
+  printf "["
+  while kill -0 $PID 2>/dev/null; do
+    for X in '-' '/' '|' '\'; do
+      echo -en "\b$X"
+      sleep 0.5
+    done
+  done
+fi
+
+repo=$(fzf < "$cachefile")
+if [ -z "$repo" ]; then
   echo "Please choose a repository"
   exit 1
 fi
 
 option=$(echo "clone view fork archive" | tr " " "\n" | fzf)
-if [ -z $option ]; then
+if [ -z "$option" ]; then
   echo "Please choose an option"
   exit 1
 fi
 
-if [ $option = "clone" ]; then
-  gh repo clone $repo
-elif [ $option = "view" ]; then
-  gh repo view $repo --web
-elif [ $option = "fork" ]; then
-  gh repo fork $repo
-elif [ $option = "archive" ]; then
-  gh repo archive $repo
+if [ "$option" = "clone" ]; then
+  gh repo clone "$repo"
+elif [ "$option" = "view" ]; then
+  gh repo view "$repo" --web
+elif [ "$option" = "fork" ]; then
+  gh repo fork "$repo"
+elif [ "$option" = "archive" ]; then
+  gh repo archive "$repo"
 fi

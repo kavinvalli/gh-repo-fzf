@@ -39,7 +39,7 @@ gh extension install kavinvalli/gh-repo-fzf
    ```bash
    gh extension install .
    ```
-   
+
 ## Available actions
 - Clone
 - View
@@ -48,14 +48,20 @@ gh extension install kavinvalli/gh-repo-fzf
 
 ## Usage
 
-- To list all directories you have access to, run:
+- To list all repositories you have access to, run:
 
 ```sh
 gh repo-fzf
 ```
 
-- To list directories of a particular user / organisation:
+- To list repositories of a particular user / organisation:
 
 ```sh
 gh repo-fzf <username/organisation-name>
+```
+
+- To list repositories of a particular user / organisation without use the cache (default 30min)
+
+```sh
+gh repo-fzf <username/organisation-name> force
 ```
